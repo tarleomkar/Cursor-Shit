@@ -1,0 +1,41 @@
+---
+description: Layering and module boundaries for FUXA client and server
+globs: client/src/**,server/**
+alwaysApply: false
+---
+
+# Architecture
+
+## Server Layers (top → bottom)
+1. `server/main.js` — process entry, HTTP/Socket.io bootstrap
+2. `server/api/` — Express routers; MUST delegate to `runtime/`
+3. `server/runtime/` — devices, storage, alarms, scripts, sockets
+4. `server/integrations/` — Node-RED nodes; MUST call runtime APIs only
+
+## Allowed Import Directions (Server)
+- `api/` → `runtime/`, `api/jwt-helper.js` ✅
+- `runtime/` → `api/` ❌ NEVER (use `init()` injection instead)
+- `runtime/devices/*` → sibling `datatypes.js`, `runtime/utils.js` ✅
+- `integrations/` → `runtime/` ✅; direct device protocol libs ❌
+
+## Client Layers (`client/src/app/`)
+| Folder | Role |
+|--------|------|
+| `_models/` | Plain TypeScript interfaces/types |
+| `_services/` | HTTP/Socket.io data access |
+| `_helpers/` | Stateless utilities |
+| `gauges/`, `editor/`, `device/` | Feature UI components |
+| `framework/`, `gui-helpers/` | Shared reusable widgets |
+
+## Allowed Import Directions (Client)
+- Components → `_services/`, `_models/`, `_helpers/` ✅
+- `_services/` → `_models/`, `_helpers/`, `environments/` ✅
+- `_models/` → other `_models/` only ✅
+- Components → direct `HttpClient` or `socket.io-client` ❌ NEVER
+
+## Where New Code Belongs
+- REST endpoint → `server/api/<domain>/index.js`
+- Device protocol driver → `server/runtime/devices/<protocol>/`
+- DAQ/storage backend → `server/runtime/storage/<engine>/`
+- UI feature screen → `client/src/app/<feature>/`
+- Shared Angular widget → `client/src/app/framework/` or `gui-helpers/`

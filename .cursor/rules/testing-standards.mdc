@@ -1,0 +1,46 @@
+---
+description: Mocha test conventions for FUXA server tests
+globs: **/*test*,**/*spec*
+alwaysApply: false
+---
+
+# Testing Standards
+
+## Framework
+- **Server**: Mocha + Chai + Sinon (`cd server && npm test`)
+- **Client**: `ng e2e` configured; no `*.spec.ts` unit tests exist yet — TODO: confirm with team
+
+## File Location & Naming
+- MUST place server tests under `server/test/<domain>/`
+- MUST name files `<subject>.test.js` (e.g. `jwtLifecycleSecurity.test.js`)
+- Security tests MUST live in `server/test/authorization/`
+
+## Structure (AAA)
+```js
+describe('Security - feature name', () => {
+  before(async () => { /* setup express app + runtime mocks */ });
+  after(async () => { /* close server */ });
+
+  it('MUST return 403 when user lacks admin group', async () => {
+    // Arrange: create token with limited groups
+    // Act:     const res = await request(server, { path, headers });
+    // Assert:  expect(res.statusCode).to.equal(403);
+  });
+});
+```
+
+## Mocking Policy
+- MUST use real Express HTTP requests via `http.request` (see existing tests)
+- MAY stub external devices/protocols with Sinon; MUST NOT mock away auth checks under test
+- MUST use test-only secrets (e.g. `const SECRET = 'jwt-lifecycle-secret'`), never production values
+
+## Coverage Expectations
+- MUST add tests for: new/changed auth paths, input validation, path normalization, rate limiting
+- MUST add tests for: new device datatype parsing or storage insert/select logic
+- SHOULD add tests for: bug fixes that reproduce a reported failure
+- TODO: confirm with team — no enforced coverage threshold in CI
+
+## What Does NOT Need Tests
+- Pure UI styling/CSS changes
+- MkDocs-only documentation edits
+- Generated or vendored assets in `client/src/assets/lib/`

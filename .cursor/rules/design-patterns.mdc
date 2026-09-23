@@ -1,0 +1,55 @@
+---
+description: Approved FUXA patterns (init injection, device drivers, Angular services, security tests) and anti-patterns to avoid
+alwaysApply: false
+---
+
+# Design Patterns
+
+## 1. Server `init()` Dependency Injection
+API modules receive `runtime` and auth callbacks via `init()`, not direct imports.
+```js
+// server/api/alarms/index.js
+function init(runtime, verifyToken, verifyGroups) { /* wire routes */ }
+module.exports = { init, app: () => router };
+```
+
+## 2. Device Driver Module
+Each protocol lives in `server/runtime/devices/<name>/` with `index.js` + `datatypes.js`.
+```js
+function Device(config) { this.init = function() { /* connect */ }; }
+module.exports = { create: (config) => new Device(config) };
+```
+
+## 3. Angular Service + Model
+Services in `_services/` consume `_models/` types; components bind to service observables.
+```ts
+@Injectable() export class AlarmService {
+  getAlarms(): Observable<Alarm[]> { return this.http.get<Alarm[]>(`${this.endpoint}/api/alarms`); }
+}
+```
+
+## 4. JWT + Group Authorization on API Routes
+Every protected route MUST call `verifyToken` then `verifyGroups` before handler logic.
+```js
+router.get('/api/alarms', verifyToken, (req, res) => {
+  if (!verifyGroups(req, res, ['alarms'])) return;
+  res.json(runtime.alarms.getAll());
+});
+```
+
+## 5. Security Integration Test (Mocha + Chai)
+New auth-sensitive endpoints MUST get a test in `server/test/authorization/`.
+```js
+describe('Security - <feature>', () => {
+  it('MUST reject unauthenticated requests with 401', async () => {
+    const res = await request(server, { path: '/api/foo' });
+    expect(res.statusCode).to.equal(401);
+  });
+});
+```
+
+## Anti-Patterns (NEVER)
+- Importing `server/api/` from `server/runtime/` (creates circular deps)
+- Calling industrial protocols (Modbus, OPC-UA) directly from Angular client
+- Hardcoding `secretCode` or JWT secrets in source (use `settings.secretCode`)
+- Committing `client/dist/` or `server/_appdata/` database files

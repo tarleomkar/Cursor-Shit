@@ -1,0 +1,42 @@
+---
+description: Branch naming, commits, PR workflow, and Definition of Done
+alwaysApply: true
+---
+
+# Git & Agile
+
+## Branch Naming
+- MUST use: `feature/<JIRA-123>-<short-slug>` (e.g. `feature/FUXA-42-modbus-timeout`)
+- Bug fixes: `fix/<JIRA-123>-<short-slug>`
+- Docs only: `docs/<short-slug>`
+- TODO: confirm with team — `CONTRIBUTING.md` shows `feature/my-feature` without JIRA prefix
+
+## Commits
+- MUST use [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`
+- Allowed types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
+- Example: `fix(api): reject expired JWT before project load`
+- MUST write clear, single-purpose commits; one logical change per commit
+
+## Pull Requests
+- MUST fill `.github/pull_request_template.md` checklist
+- MUST NOT include `client/dist/`, `node_modules/`, or `server/_appdata/` files
+- SHOULD keep PRs under ~400 changed lines; split larger work
+- MUST open an issue first for major/architectural changes (`CONTRIBUTING.md`)
+
+## Definition of Done
+- [ ] Code follows 4-space indent and project style
+- [ ] `cd server && npm test` passes (if server touched)
+- [ ] `cd client && npm run lint` passes (if client touched)
+- [ ] Auth/security changes include `server/test/authorization/` test
+- [ ] Docs updated in `docs/` when user-facing behavior changes
+- [ ] No build artifacts committed
+- [ ] Tested locally (backend :1881 + browser)
+
+## User Story Format
+```
+As a <role>, I want <capability>, so that <benefit>.
+
+Acceptance Criteria:
+- Given <precondition>, When <action>, Then <outcome>
+- Given <precondition>, When <action>, Then <outcome>
+```

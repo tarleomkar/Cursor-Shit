@@ -1,0 +1,44 @@
+---
+description: Naming, formatting, typing, and error-handling standards
+globs: **/*.ts,**/*.js,**/*.html
+alwaysApply: false
+---
+
+# Coding Standards
+
+## Formatting (`.editorconfig`, `CONTRIBUTING.md`)
+- MUST indent with **4 spaces**; NEVER use tabs
+- MUST place opening brace on same line: `if (x) {`
+- MUST insert final newline; MUST trim trailing whitespace (except `*.md`)
+- MUST run `npm run lint` in `client/` before submitting TS/HTML changes
+
+## TypeScript (`client/`, ESLint)
+- MUST use `interface` for object shapes (`@typescript-eslint/consistent-type-definitions`)
+- MUST remove unused imports (`unused-imports/no-unused-imports`)
+- MUST wrap multi-line `if/for/while` bodies in braces (`curly: multi-line`)
+- MUST prefix Angular selectors with `app` (kebab-case elements, camelCase directives)
+- MUST NOT introduce `any` without inline justification comment
+
+## JavaScript (`server/`)
+- MUST start files with `'use strict';`
+- MUST use `require()` / `module.exports` (CommonJS); no ES modules in server runtime
+- MUST use 4-space indent matching existing files in the same directory
+- MUST use `var`/`function` style when editing existing files; do not mass-convert to `const`
+
+## Naming
+| Kind | Convention | Example |
+|------|-----------|---------|
+| Angular component | `*.component.ts` | `alarm-view.component.ts` |
+| Angular service | `*.service.ts` in `_services/` | `project.service.ts` |
+| Server API module | `server/api/<name>/index.js` | `alarms/index.js` |
+| Device driver | `server/runtime/devices/<proto>/index.js` | `modbus/index.js` |
+| Test file | `<subject>.test.js` | `jwtLifecycleSecurity.test.js` |
+
+## Error Handling & Logging
+- Server errors MUST use `server/runtime/logger.js` (Winston), not bare `console.log` in production paths
+- API handlers MUST return HTTP status codes (4xx/5xx); NEVER swallow auth failures silently
+- Angular services MUST surface user-facing errors via `ToastrService` or `TranslateService`
+
+## Comments
+- MUST NOT add comments that restate obvious code
+- MUST add comments only for non-obvious protocol behavior, security checks, or SCADA edge cases

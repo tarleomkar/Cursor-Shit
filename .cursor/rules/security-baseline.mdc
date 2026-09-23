@@ -1,0 +1,37 @@
+---
+description: Input validation, secrets, auth, and dependency security baseline
+alwaysApply: true
+---
+
+# Security Baseline
+
+## Authentication & Authorization
+- MUST verify JWT via `authJwt.verifyToken` on every protected REST route
+- MUST check group permissions via `verifyGroups()` before admin or write operations
+- MUST enforce `isSocketWriteAuthorized()` / `isSocketAdminAuthorized()` on Socket.io handlers
+- MUST apply `express-rate-limit` on auth endpoints (see `server/api/index.js`)
+- NEVER bypass auth when `settings.secureEnabled` is true
+
+## Secrets Handling
+- MUST read secrets from `settings.secretCode` / runtime config, not hardcoded strings
+- NEVER commit `.env`, API keys, JWT secrets, or `server/_appdata/` databases
+- NEVER log tokens, passwords, or `secretCode` values
+- Test secrets MUST be isolated constants in test files only
+
+## Input Validation
+- MUST validate and normalize file paths (see `server/api/path-helper.js` patterns)
+- MUST reject path traversal (`..`, absolute paths outside allowed dirs)
+- MUST cap request body size via `apiMaxLength` setting (default `100mb`)
+- MUST sanitize user-supplied script content before `runtime/scripts` execution
+- NEVER pass unsanitized user input to `eval()`, `Function()`, or shell commands
+
+## Dependency Hygiene
+- MUST NOT add dependencies without user approval and security review
+- MUST run `npm audit` in affected package before merging dependency changes
+- MUST use `server/package.json` `overrides` for known vulnerable transitive deps
+- NEVER install packages from unverified git URLs or non-npm registries
+
+## Industrial / SCADA Safety
+- MUST validate device write commands against tag permissions before dispatch
+- MUST NOT expose internal device connection strings in API responses
+- Alarm acknowledge and script execution MUST require authenticated, authorized users

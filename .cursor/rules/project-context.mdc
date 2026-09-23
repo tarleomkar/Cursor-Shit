@@ -1,0 +1,44 @@
+---
+description: FUXA monorepo context, commands, and hard constraints
+alwaysApply: true
+---
+
+# FUXA Project Context
+
+## Tech Stack
+- **Frontend**: Angular 18, Angular Material, RxJS, Socket.io-client, TailwindCSS (`client/`)
+- **Backend**: Node.js 18 LTS, Express, Socket.io, Winston (`server/`)
+- **Docs**: MkDocs Material (`docs/`)
+- **Package manager**: npm (separate `package.json` per package; no root workspace)
+
+## Folder Map
+| Path | Purpose |
+|------|---------|
+| `client/src/app/` | Angular UI (editor, gauges, alarms, devices) |
+| `server/api/` | REST API route handlers |
+| `server/runtime/` | Device drivers, storage, sockets, business logic |
+| `server/integrations/` | Node-RED contrib nodes |
+| `server/test/` | Mocha integration/security tests |
+| `docs/` | MkDocs documentation source |
+| `app/` | Electron packaging |
+
+## Commands
+```bash
+# Backend
+cd server && npm install && npm start        # dev server :1881
+cd server && npm test                        # Mocha tests
+
+# Frontend
+cd client && npm install && npm start        # ng serve
+cd client && npm run build && npm run lint
+
+# Docs
+pip install "mkdocs<2.0" mkdocs-material && mkdocs serve
+```
+
+## NEVER Do
+- NEVER commit secrets, tokens, `.env`, or `server/_appdata/` runtime data
+- NEVER commit `node_modules/`, `client/dist/`, or `server/_pkg/` build output
+- NEVER add npm dependencies without explicit user approval
+- NEVER edit files outside the requested scope (no drive-by refactors)
+- NEVER use Node.js versions below 18 LTS
